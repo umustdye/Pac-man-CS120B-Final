@@ -10,6 +10,7 @@
 //'S' -> super pellet
 //'G' -> allowable path
 //'T' -> tunnel
+//close off tunnels for now
 unsigned char map_ref[31][28] = {
   {'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W'},
   {'W', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'W', 'W', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'W'},
@@ -25,7 +26,7 @@ unsigned char map_ref[31][28] = {
   {'W', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'W'},
   {'W', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'G', 'W', 'W', 'W', 'D', 'D', 'W', 'W', 'W', 'G', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'W'},
   {'W', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'G', 'W', 'M', 'M', 'M', 'M', 'M', 'M', 'W', 'G', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'W'},
-  {'T', 'T', 'T', 'T', 'T', 'T', 'P', 'G', 'G', 'G', 'W', 'M', 'M', 'M', 'M', 'M', 'M', 'W', 'G', 'G', 'G', 'P', 'T', 'T', 'T', 'T', 'T', 'T'},
+  {'T', 'T', 'T', 'T', 'T', 'W', 'P', 'G', 'G', 'G', 'W', 'M', 'M', 'M', 'M', 'M', 'M', 'W', 'G', 'G', 'G', 'P', 'W', 'T', 'T', 'T', 'T', 'T'},
   {'W', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'G', 'W', 'M', 'M', 'M', 'M', 'M', 'M', 'W', 'G', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'W'},
   {'W', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'G', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'G', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'W'},
   {'W', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'W'},
@@ -93,6 +94,7 @@ typedef struct Character{
 	unsigned char prev_direct;
 	int target_tile_x; //for ghosts
 	int target_tile_y; //for ghosts
+	unsigned char name; //'M'->pacman, 'B'->Blinky, 'C'->Clyde, 'I'->Inky, 'P'->Pinky
 
 
 } Character;
@@ -100,7 +102,7 @@ typedef struct Character{
 void initialize_character(Character *character, 	
 	int back_tile_x, int back_tile_y, int boarder_x[4], int boarder_y[4], unsigned char direct,
 	int index, int max_index, int prev_boarder_x[4], int prev_boarder_y[4], unsigned char prev_direct,
-	int target_tile_x, int target_tile_y)
+	int target_tile_x, int target_tile_y, unsigned char name)
 {
 	character->back_tile_x = back_tile_x;
 	character->back_tile_y = back_tile_y;
@@ -118,6 +120,7 @@ void initialize_character(Character *character,
 	character->max_index = max_index;
 	character->target_tile_x = target_tile_x;
 	character->target_tile_y = target_tile_y;
+	character->name = name;
 }
 
 void prepare_send_data(Character character, unsigned char data[])

@@ -1,65 +1,36 @@
 #include "character.h"
+#include "pacman.h"
+#include "ghost.h"
 #include <stdio.h>
 
 int main() {
 
     initiate_map();
     draw_map();
+    unsigned int score = 0;
 
     //Test collision function
-    Character test_man;
-    int back_tile_x = 11; //column
-	int back_tile_y = 1; //row
-	//pixel values for the boarder box for drawing and collisions
-	int boarder_x[4]; //TL -> TR -> BR -> BL
-    boarder_x[0] = back_tile_x * 8;
-    boarder_x[1] = boarder_x[0] + 16;
-    boarder_x[2] = boarder_x[1];
-    boarder_x[3] = boarder_x[0]; 
-	int boarder_y[4]; //TL -> TR -> BR ->BL
-    boarder_y[0] = back_tile_y * 8 - 4;
-    boarder_y[1] = boarder_y[0];
-    boarder_y[2] = boarder_y[0] - 16;
-    boarder_y[3] = boarder_y[2];
-	unsigned char direct = 'R'; //can be 'U', 'R', 'D', 'L', or 'I'
-    unsigned char prev_direct = 'R';
-	int index = 0; //index for animation frame
-	int max_index = 4; //how many frames in animation cycle
-	//previous location for graphics
-	int prev_boarder_x[4];
-    prev_boarder_x[0] = back_tile_x * 8;
-    prev_boarder_x[1] = prev_boarder_x[0] + 16;
-    prev_boarder_x[2] = prev_boarder_x[1];
-    prev_boarder_x[3] = prev_boarder_x[0]; 
-	int prev_boarder_y[4];
-    prev_boarder_y[0] = back_tile_y * 8 - 4;
-    prev_boarder_y[1] = prev_boarder_y[0];
-    prev_boarder_y[2] = prev_boarder_y[0] - 16;
-    prev_boarder_y[3] = prev_boarder_y[2];
-	int target_tile_x = 0; //for ghosts
-	int target_tile_y = 0; //for ghosts
-    initialize_character(&test_man, back_tile_x, back_tile_y, boarder_x, boarder_y, direct, index, max_index, prev_boarder_x, prev_boarder_y, prev_direct, target_tile_x, target_tile_y);
+    Character pacman;
+    initialize_pacman(&pacman);
+    
+    
 
     int dist = -1;
-    unsigned char direction = 'L';
-    unsigned char test_collision = map_collision(dist, direct, &test_man);
+    unsigned char direct = 'L';
+    
+    unsigned char if_pellet = pacman_turn(&pacman, direct);
 
-    if(test_collision == 'W')
+    if(if_pellet == 0x01)
     {
-        printf("\nCollision");
+        score += 10;
     }
 
-    else
+    else if(if_pellet == 0x02)
     {
-        //update the postion
-        update_position(dist, direction, &test_man);
-        if(test_collision == 'P')
-        {
-            update_pellet(test_man.back_tile_x, test_man.back_tile_y);
-            printf("\n\n");
-            draw_map();
-        }
+        score += 50;
     }
+ 
+    printf("%d", score);
 
     return 0;
 }
