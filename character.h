@@ -79,14 +79,14 @@ void update_pellet(unsigned char location_x, unsigned char location_y)
 
 
 typedef struct Character{
-	unsigned char back_tile_x; //column
-	unsigned char back_tile_y; //row
+	int back_tile_x; //column
+	int back_tile_y; //row
 	//pixel values for the boarder box for drawing and collisions
 	unsigned char boarder_x[4]; //TL -> TR -> BR -> BL
 	unsigned char boarder_y[4]; //TL -> TR -> BR ->BL
 	unsigned char direct; //can be 'U', 'R', 'D', 'L', or 'I'
-	unsigned char index; //index for animation frame
-	unsigned char max_index; //how many frames in animation cycle
+	int index; //index for animation frame
+	int max_index; //how many frames in animation cycle
 	//previous location for graphics
 	unsigned char prev_boarder_x[4];
 	unsigned char prev_boarder_y[4];
@@ -153,8 +153,9 @@ unsigned char prev_tile_offset_graphics_y(Character character)
 }
 
 //check for map collisions had to keep it separate for the ghosts
-unsigned char map_collision(int dist, Character character){
-	unsigned char new_location = game_map[(int)(character.back_tile_y + dist)][(int)(character.back_tile_x + dist)];
+unsigned char map_collision(int dist, Character *character){
+	unsigned char new_location = game_map[character->back_tile_y + dist][character->back_tile_x + dist];
+	printf("%c", new_location);
 	return new_location;
 }
 
