@@ -30,7 +30,16 @@ int main() {
         score += 50;
     }
  
-    printf("%d", score);
+    //printf("%d", score);
+
+    unsigned char data[13];
+    send_data(&pacman, data);
+    for(int i=0; i<13; i++)
+    {
+        printf("%d ", data[i]);
+    }
+    printf("%c ", data[2]);
+
 
     return 0;
 }

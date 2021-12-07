@@ -123,59 +123,132 @@ void initialize_character(Character *character,
 	character->name = name;
 }
 
-void prepare_send_data(Character character, unsigned char data[])
-{
-
-}
 
 
 //get the upper tile for graphics
-unsigned char tile_graphics_x(Character character)
+unsigned char tile_graphics_x(Character *character)
 {
-	return (unsigned char)(character.boarder_x[0]/8);
+	if(character->boarder_x[0]%8 == 0)
+	{
+		return (unsigned char)(character->boarder_x[0]/8);
+	}
+
+	else
+	{
+		return (unsigned char)((character->boarder_x[0]/8)+1);
+	}
+	
 }
 
 //get the upper tile offset for graphics
-unsigned char tile_offset_graphics_x(Character character)
+unsigned char tile_offset_graphics_x(Character *character)
 {
-	return (unsigned char)(character.boarder_x[0]%8);
+	return (unsigned char)(character->boarder_x[0]%8);
 }
 
 //get the upper tile for graphics
-unsigned char tile_graphics_y(Character character)
+unsigned char tile_graphics_y(Character *character)
 {
-	return (unsigned char)(character.boarder_y[0]/8);
+	if(character->boarder_y[0]%8 == 0)
+	{
+		return (unsigned char)(character->boarder_y[0]/8);
+	}
+
+	else
+	{
+		return (unsigned char)((character->boarder_y[0]/8)+1);
+	}
+
 }
 
 //get the upper tile offset for graphics
-unsigned char tile_offset_graphics_y(Character character)
+unsigned char tile_offset_graphics_y(Character *character)
 {
-	return (unsigned char)(character.boarder_y[0]%8);
+	return (unsigned char)(character->boarder_y[0]%8);
 }
 
 //get the upper tile for graphics
-unsigned char prev_tile_graphics_x(Character character)
+unsigned char prev_tile_graphics_x(Character *character)
 {
-	return (unsigned char)(character.prev_boarder_x[0]/8);
+	if(character->prev_boarder_x[0]%8 == 0)
+	{
+		return (unsigned char)(character->prev_boarder_x[0]/8);
+	}
+
+	else
+	{
+		return (unsigned char)((character->prev_boarder_x[0]/8) + 1);
+	}
+	
+	
 }
 
 //get the upper tile offset for graphics
-unsigned char prev_tile_offset_graphics_x(Character character)
+unsigned char prev_tile_offset_graphics_x(Character *character)
 {
-	return (unsigned char)(character.prev_boarder_x[0]%8);
+	return (unsigned char)(character->prev_boarder_x[0]%8);
 }
 
 //get the upper tile for graphics
-unsigned char prev_tile_graphics_y(Character character)
+unsigned char prev_tile_graphics_y(Character *character)
 {
-	return (unsigned char)(character.prev_boarder_y[0]/8);
+	if(character->prev_boarder_y[0]%8 == 0)
+	{
+		return (unsigned char)(character->prev_boarder_y[0]/8);
+	}
+
+	else
+	{
+		return (unsigned char)((character->prev_boarder_y[0]/8) + 1);
+	}
+	
+	
 }
 
 //get the upper tile offset for graphics
-unsigned char prev_tile_offset_graphics_y(Character character)
+unsigned char prev_tile_offset_graphics_y(Character *character)
 {
-	return (unsigned char)(character.prev_boarder_y[0]%8);
+	return (unsigned char)(character->prev_boarder_y[0]%8);
 }
+
+
+
+void prepare_send_data(Character *character, unsigned char *data)
+{
+	/*	start 								0x22
+	character or game state
+	direction
+	current_location_x (tile j value)
+	current_location_x_offset (how far into tile j it is)
+	current_location_y (tile i value)
+	current_location_y_offset (how far into tile i it is)
+	prev_location_x (tile j value)
+	prev_location_x_offset (how far into tile j it is)
+	prev_location_y (tile i value)
+	prev_location_y_offset (how far into tile i it is)
+	index (for animation frame)
+	end*/
+	data[0] = (unsigned char*)(0x22);
+	//data[1] = //character or game state
+	data[2] = (unsigned char*)(character->direct);
+	data[3] = (unsigned char*)(tile_graphics_x(character));
+	data[4] = (unsigned char*)(tile_offset_graphics_x(character));
+	data[5] = (unsigned char*)(tile_graphics_y(character));
+	data[6] = (unsigned char*)(tile_offset_graphics_y(character));
+	data[7] = (unsigned char*)(prev_tile_graphics_x(character));
+	data[8] = (unsigned char*)(prev_tile_offset_graphics_x(character));
+	data[9] = (unsigned char*)(prev_tile_graphics_y(character));
+	data[10] = (unsigned char*)(prev_tile_offset_graphics_y(character));
+	data[11] = (unsigned char*)(character->index); 
+	data[12] = (unsigned char*)(0x24);
+}
+
+
+
+
+
+
+
 
 //check for map collisions had to keep it separate for the ghosts
 unsigned char map_collision(int dist, unsigned char direct, Character *character){

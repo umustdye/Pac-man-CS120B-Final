@@ -4,6 +4,11 @@
 #include "character.h"
 
 
+void send_data(Character *pacman, unsigned char *sendData)
+{
+    prepare_send_data(pacman, sendData);
+    sendData[1] = (unsigned char)(0x04);
+}
 
 
 void initialize_pacman(Character *pacman)
