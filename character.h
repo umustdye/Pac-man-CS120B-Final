@@ -8,7 +8,7 @@
 //'S' -> super pellet
 //'G' -> allowable path
 //'T' -> tunnel
-unsigned char map[31][28] = {
+unsigned char map_ref[31][28] = {
   {'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W'},
   {'W', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'W', 'W', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'W'},
   {'W', 'P', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'W', 'P', 'W', 'W', 'W', 'W', 'P', 'W'},
@@ -43,6 +43,24 @@ unsigned char map[31][28] = {
 
 };
 
+unsigned char game_map[31][28];
+
+void initate_map()
+{
+	for(int i=0; i<31; i++)
+	{
+		for(int j=0; j<28; j++)
+		{
+			game_map[i][j] = map_ref[i][j];
+		}
+	}
+}
+
+void update_pellet(unsigned char location_x, unsigned char location_y)
+{
+	//a pellet has been eaten
+	game_map[location_y][location_x] = 'G';
+}
 
 
 typedef struct_character{
@@ -71,16 +89,17 @@ typedef struct_character{
 
 
 //check for map collisions had to keep it separate for the ghosts
-unsigned char map_collision(char dist, unsigned char direct, Character character)
+unsigned char map_collision(int dist, unsigned char direct, Character character)
 {
-	
+	unsigned char new_location = game_map[character.back_tile_y + dist][character.back_tile_x + dist];
+	return new_location;
 }
 
 
 
 
 //update boarder box
-void update_boarder_box(char dist, unsigned char direct, Character *character)
+void update_boarder_box(int dist, unsigned char direct, Character *character)
 {
 	//set the old currect location as the prev
 	for(int i=0; i<4; i++)
