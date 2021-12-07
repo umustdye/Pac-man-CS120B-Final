@@ -22,6 +22,7 @@ int main() {
     boarder_y[2] = boarder_y[0] - 16;
     boarder_y[3] = boarder_y[2];
 	unsigned char direct = 'R'; //can be 'U', 'R', 'D', 'L', or 'I'
+    unsigned char prev_direct = 'R';
 	int index = 0; //index for animation frame
 	int max_index = 4; //how many frames in animation cycle
 	//previous location for graphics
@@ -37,7 +38,7 @@ int main() {
     prev_boarder_y[3] = prev_boarder_y[2];
 	int target_tile_x = 0; //for ghosts
 	int target_tile_y = 0; //for ghosts
-    initialize_character(&test_man, back_tile_x, back_tile_y, boarder_x, boarder_y, direct, index, max_index, prev_boarder_x, prev_boarder_y, target_tile_x, target_tile_y);
+    initialize_character(&test_man, back_tile_x, back_tile_y, boarder_x, boarder_y, direct, index, max_index, prev_boarder_x, prev_boarder_y, prev_direct, target_tile_x, target_tile_y);
 
     int dist = -1;
     unsigned char direction = 'L';
@@ -52,6 +53,12 @@ int main() {
     {
         //update the postion
         update_position(dist, direction, &test_man);
+        if(test_collision == 'P')
+        {
+            update_pellet(test_man.back_tile_x, test_man.back_tile_y);
+            printf("\n\n");
+            draw_map();
+        }
     }
 
     return 0;

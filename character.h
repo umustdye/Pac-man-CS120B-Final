@@ -71,7 +71,7 @@ void draw_map()
 	}
 }
 
-void update_pellet(unsigned char location_x, unsigned char location_y)
+void update_pellet(int location_x, int location_y)
 {
 	//a pellet has been eaten
 	game_map[location_y][location_x] = 'G';
@@ -90,6 +90,7 @@ typedef struct Character{
 	//previous location for graphics
 	int prev_boarder_x[4];
 	int prev_boarder_y[4];
+	unsigned char prev_direct;
 	int target_tile_x; //for ghosts
 	int target_tile_y; //for ghosts
 
@@ -98,8 +99,8 @@ typedef struct Character{
 
 void initialize_character(Character *character, 	
 	int back_tile_x, int back_tile_y, int boarder_x[4], int boarder_y[4], unsigned char direct,
-	int index, int max_index, int prev_boarder_x[4], int prev_boarder_y[4], int target_tile_x,
-	int target_tile_y)
+	int index, int max_index, int prev_boarder_x[4], int prev_boarder_y[4], unsigned char prev_direct,
+	int target_tile_x, int target_tile_y)
 {
 	character->back_tile_x = back_tile_x;
 	character->back_tile_y = back_tile_y;
@@ -112,6 +113,7 @@ void initialize_character(Character *character,
 	}
 
 	character->direct = direct;
+	character->prev_direct = prev_direct;
 	character->index = index;
 	character->max_index = max_index;
 	character->target_tile_x = target_tile_x;
@@ -203,6 +205,7 @@ unsigned char map_collision(int dist, unsigned char direct, Character *character
 
 
 void update_back_tile(int dist, unsigned char direct, Character *character){
+
 	switch(direct)
 	{
 		case 'U':
@@ -228,6 +231,177 @@ void update_back_tile(int dist, unsigned char direct, Character *character){
 }
 
 
+void rotate_character(Character *character)
+{
+		//check and see if pacman flipped directions
+	if(character->prev_direct != character->direct)
+	{
+		switch(character->prev_direct)
+		{
+			case 'U':
+				switch (character->direct)
+				{
+					case 'R':
+						//cw
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0];
+						character->boarder_x[1] = character->boarder_x[1];
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2];
+						character->boarder_x[3] = character->boarder_x[3];
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;
+					case 'D':
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;	
+					case 'L':
+						//ccw
+						character->boarder_x[0] = character->boarder_x[0];
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1];
+						character->boarder_x[2] = character->boarder_x[2];
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3];
+						break;
+
+					default:
+						break;
+				}
+				break;
+			case 'R':
+							switch (character->direct)
+				{
+					case 'D':
+						//cw
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0];
+						character->boarder_x[1] = character->boarder_x[1];
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2];
+						character->boarder_x[3] = character->boarder_x[3];
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;
+					case 'L':
+						//ccw
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;
+					case 'U':
+						character->boarder_x[0] = character->boarder_x[0];
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1];
+						character->boarder_x[2] = character->boarder_x[2];
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3];
+						break;
+					default:
+						break;
+				}
+				break;
+			case 'D':
+				switch (character->direct)
+				{
+					case 'L':
+						//cw
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0];
+						character->boarder_x[1] = character->boarder_x[1];
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2];
+						character->boarder_x[3] = character->boarder_x[3];
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;
+					case 'U':
+						//ccw
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;
+					case 'R':
+						character->boarder_x[0] = character->boarder_x[0];
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1];
+						character->boarder_x[2] = character->boarder_x[2];
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3];
+						break;
+					default:
+						break;
+				}
+				break;
+			case 'L':
+				switch (character->direct)
+				{
+					case 'U':
+						//cw
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0];
+						character->boarder_x[1] = character->boarder_x[1];
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2];
+						character->boarder_x[3] = character->boarder_x[3];
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;
+					case 'R':
+						//ccw
+						character->boarder_x[0] = character->boarder_x[0] + 16;
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1] + 16;
+						character->boarder_x[2] = character->boarder_x[2] - 16;
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3] - 16;
+						break;
+					case 'D':
+						character->boarder_x[0] = character->boarder_x[0];
+						character->boarder_y[0] = character->boarder_y[0] + 16;
+						character->boarder_x[1] = character->boarder_x[1] - 16;
+						character->boarder_y[1] = character->boarder_y[1];
+						character->boarder_x[2] = character->boarder_x[2];
+						character->boarder_y[2] = character->boarder_y[2] - 16;
+						character->boarder_x[3] = character->boarder_x[3] + 16;
+						character->boarder_y[3] = character->boarder_y[3];
+						break;
+					default:
+						break;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+
 //update position
 void update_box(int dist, unsigned char direct, Character *character)
 {
@@ -241,7 +415,9 @@ void update_box(int dist, unsigned char direct, Character *character)
 	{
 		character->prev_boarder_y[i] = character->boarder_y[i];
 	}
-	//future heidi change this, it's moving both dimensions at once which is wrong
+	
+	//rotate character if needed
+	rotate_character(character);
 	//set new values as current	
 	switch (direct)
 	{
@@ -281,7 +457,6 @@ void update_box(int dist, unsigned char direct, Character *character)
 
 
 
-
 	//update animation index
 	if(character->index < character->max_index){
 		character->index++;
@@ -302,6 +477,7 @@ void update_box(int dist, unsigned char direct, Character *character)
 //update position if no collision or update direction if idle
 void update_position(int dist, unsigned char direct, Character *character)
 {
+	character->prev_direct = character->direct;
 	character->direct = direct;
 	if(direct == 'I')
 	{
