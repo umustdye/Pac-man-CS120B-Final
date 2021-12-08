@@ -5,7 +5,10 @@
 #include "character.h"
 
 
-
+void send_data_ghost(Character *ghost, unsigned char *sendData, unsigned char state)
+{
+    sendData[1] = (unsigned char)(state);
+}
 
 void initialize_blinky(Character *blinky)
 {

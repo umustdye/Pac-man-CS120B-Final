@@ -14,6 +14,7 @@
 #include <avr/power.h>
 #include <../header/timer.h>
 #include <../header/usart_player.h>
+#include <../header/usart_graphics.h>
 #include <string.h>
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
@@ -21,17 +22,58 @@
 
 enum MusicStates_1{STARTUP_1, WAKAWAKA, FRUIT, SPECIAL_ABILITY, EAT_GHOST, HIGH_SCORE, CUTSCENE_CHASE, DIES, WAKAWAKA_SHORT, WAIT_1, RESET_1}musicState_1;
 enum MusicStates_2{GHOST_SIREN_1, GHOST_SIREN_2, GHOST_AFTER_EATEN, WAIT_2, RESET_2}musicState_2;
+enum GameStates{GAME_START, GAME_PLAY, GAME_LOST, GAME_RESTART, GAME_WAIT, GAME_RESTART_RELEASE, GAME_START_RELEASE}gameState;
+enum PacmanStates{PACMAN_WAIT, PACMAN_START, PACMAN_PLAY, PACMAN_POWERUP}pacmanState;
+enum BlinkyStates{BLINKY_WAIT, BLINKY_START, BLINKY_CHASE, BLINKY_SCATTER, BLINKY_SCARED, BLINKY_EYES}blinkyState;
 enum JoystickStates{RIGHT, LEFT, UP, DOWN, IDLE}joystickState;
 char joystick;
 unsigned char player_1_send[4];
 unsigned char player_1_data;
 unsigned char player_2_send[4];
+unsigned char pacman_send[13];
+unsigned char game_send[13];
+unsigned char blinky_send[13];
+unsigned char clyde_send[13];
+unsigned char inky_send[13];
+unsigned char pinky_send[13];
 unsigned char player_2_data;
 unsigned char ate_pellet;
 unsigned char reset;
+unsigned char game_count;
+unsigned int score;
+unsigned int highscore;
 unsigned char game_start;
 unsigned char pacman_died;
+unsigned char pacman_lives;
 
+void TransmitPlayer()
+{
+	if(player_1_data == 0x01)
+	{
+		//transmit player 1 data
+		for(int i=0; i<4; i++)
+		{
+			USART_Send0(player_1_send[i]);
+		}
+		player_1_data == 0x00;
+	}
+
+	//give some time between the next transmit
+	for(int i=0; i<50; i++)
+	{
+		//just here for spacing
+	}
+
+	if(player_2_data == 0x01)
+	{
+		//transmit player 2 data
+		for(int i=0; i<4; i++)
+		{
+			USART_Send(player_2_send[i]);
+		}
+		player_2_data == 0x00;
+	}
+}
 
 void MusicSM()
 {
@@ -213,7 +255,7 @@ void MusicSM()
 			break;
 
 		case WAIT_1:
-			player_1_data == 0x00;
+			//player_1_data == 0x00;
 
 
 			//go to the other appropriate states
@@ -243,7 +285,7 @@ void MusicSM()
 			player_1_send[1] = 0x01;
 			player_1_send[2] = 0x23;
 			player_1_send[3] = 0x24;
-
+			player_1_data = 0x00;
 			musicState_1 = WAIT_1;
 			break;
 		default:
@@ -317,7 +359,7 @@ void MusicSM()
 			break; 
 
 		case WAIT_2:
-			player_2_data == 0x00;
+			//player_2_data == 0x00;
 
 
 			//go to the other appropriate states
@@ -350,13 +392,17 @@ void MusicSM()
 			player_2_send[3] = 0x24;
 
 			musicState_2 = WAIT_2;
+			player_2_data = 0x00;
 			break;
 		default:
 			break;
 	}
+
+	//transmit the music
+	TransmitPlayer();
 }
 
-void CombineSM()
+/*void CombineSM()
 {
 	switch(joystick)
 	{
@@ -385,13 +431,8 @@ void CombineSM()
 			break;
 	}
 
-	for(int i=0; i<4; i++)
-	{
-		USART_Send(send[i]);
-	}
 
-
-}
+}*/
 
 
 void JoystickSM()
@@ -467,20 +508,129 @@ void JoystickSM()
 }
 
 
+void GameSM()
+{
+	switch (gameState)
+	{
+	case GAME_START:
+		if(~PINB ==0x02)
+		{
+			gameState = GAME_RESTART_RELEASE;
+		}
+		game_count++;
+
+		if(game_count > 20)
+		{
+			gameState = GAME_START;
+			game_start = 0x00;
+		}
+		break;
+
+	case GAME_PLAY:
+		if(~PINB ==0x02)
+		{
+			gameState = GAME_RESTART_RELEASE;
+		}
+
+		else
+		{
+			check_highscore(score);
+			if(pacman_died)
+			{
+				pacman_lives--;
+			}
+
+			if(pacman_lives <= 0)
+			{
+				gameState = GAME_LOST;
+			}
+			
+		}
+		break;
+
+	case GAME_LOST:
+		if(~PINB ==0x02)
+		{
+			gameState = GAME_RESTART_RELEASE;
+		}
+		pacman_died = 0x01;
+		gameState = GAME_WAIT;
+		break;
+
+
+	case GAME_WAIT:
+		reset = 0x00;
+		pacman_died = 0x00;
+		game_start = 0x00;
+		player_1_data = 0x00;
+		player_2_data = 0x00;
+		ate_pellet = 0x00;
+		game_count = 0x00;
+		score = 0;
+		highscore = get_highscore();
+		pacman_lives = 3;
+		if(~PINB == 0x01)
+		{
+			gameState = GAME_START_RELEASE;
+		}
+
+		else if(~PINB ==0x02)
+		{
+			gameState = GAME_RESTART_RELEASE;
+		}
+		break;
+	
+	case GAME_RESTART:
+		restart = 0x01;
+		gameState = GAME_WAIT;
+		break;
+
+	case GAME_RESTART_RELEASE:
+		if(~PINB == 0x00)
+		{
+			gameState = GAME_RESTART;
+		}
+		break;
+
+	case GAME_START_RELEASE:
+		if(~PINB == 0x00)
+		{
+			gameState = GAME_START;
+			pacman_lives = 3;
+			game_start = 0x01;
+			game_count = 0x00;
+			score = 0;
+			ate_pellet = 0x00;
+		}
+		break;
+	
+	default:
+		break;
+	}
+}
+
+
+
 
 int main(void) {
     /* Insert DDR and PORT initializations */
 	DDRA = 0x00;
 	PORTA = 0xFF;
 
-	DDRB = 0xFF;
-	PORTB = 0x00;
+	DDRB = 0x00;
+	PORTB = 0xFF;
+
+	//DDRB = 0xFF;
+	//PORTB = 0x00;
 
 	joystickState = IDLE;
-	musicState = STARTUP;
+	musicState_1 = WAIT_1;
+	musicState_2 = WAIT_2;
+	gameState = GAME_WAIT;
 	TimerOn();
 	TimerSet(100);
-	initUSART();
+	initUSART0();
+	initUSART1();
 	//clock_prescale_set(clock_div_1);
 
 
@@ -490,7 +640,6 @@ int main(void) {
     while (1) {
 	    JoystickSM();
 	    MusicSM();
-	    CombineSM();
 
 
 	    while(!TimerFlag){}

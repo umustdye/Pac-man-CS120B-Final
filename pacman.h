@@ -4,7 +4,7 @@
 #include "character.h"
 
 
-void send_data(Character *pacman, unsigned char *sendData)
+void send_data_pacmen(Character *pacman, unsigned char *sendData)
 {
     prepare_send_data(pacman, sendData);
     sendData[1] = (unsigned char)(0x04);
