@@ -15,6 +15,10 @@
 #include <../header/timer.h>
 #include <../header/usart_player.h>
 #include <../header/usart_graphics.h>
+#include <../header/character.h>
+#include <../header/pacman.h>
+#include <../header/ghost.h>
+#include <../header/highscore.h>
 #include <string.h>
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
@@ -25,13 +29,22 @@ enum MusicStates_2{GHOST_SIREN_1, GHOST_SIREN_2, GHOST_AFTER_EATEN, WAIT_2, RESE
 enum GameStates{GAME_START, GAME_PLAY, GAME_LOST, GAME_RESTART, GAME_WAIT, GAME_RESTART_RELEASE, GAME_START_RELEASE}gameState;
 enum PacmanStates{PACMAN_WAIT, PACMAN_START, PACMAN_PLAY, PACMAN_POWERUP}pacmanState;
 enum BlinkyStates{BLINKY_WAIT, BLINKY_START, BLINKY_CHASE, BLINKY_SCATTER, BLINKY_SCARED, BLINKY_EYES}blinkyState;
+enum ClydeStates{CLYDE_WAIT, CLYDE_START, CLYDE_CHASE, CLYDE_SCATTER, CLYDE_SCARED, CLYDE_EYES}clydeState;
+enum InkyStates{INKY_WAIT, INKY_START, INKY_CHASE, INKY_SCATTER, INKY_SCARED, INKY_EYES}inkyState;
+enum PinkyStates{PINKY_WAIT, PINKY_START, PINKY_CHASE, PINKY_SCATTER, PINKY_SCARED, PINKY_EYES}pinkyState;
 enum JoystickStates{RIGHT, LEFT, UP, DOWN, IDLE}joystickState;
-char joystick;
+unsigned char joystick;
 unsigned char player_1_send[4];
 unsigned char player_1_data;
 unsigned char player_2_send[4];
 unsigned char pacman_send[13];
 unsigned char game_send[13];
+unsigned char game_send_data;
+unsigned char pacman_send_data;
+unsigned char blinky_send_data;
+unsigned char clyde_send_data;
+unsigned char pinky_send_data;
+unsigned char inky_send_data;
 unsigned char blinky_send[13];
 unsigned char clyde_send[13];
 unsigned char inky_send[13];
@@ -45,6 +58,11 @@ unsigned int highscore;
 unsigned char game_start;
 unsigned char pacman_died;
 unsigned char pacman_lives;
+Character pacman;
+Character blinky;
+Character pinky;
+Character inky;
+Character clyde;
 
 void TransmitPlayer()
 {
@@ -74,6 +92,8 @@ void TransmitPlayer()
 		player_2_data == 0x00;
 	}
 }
+
+
 
 void MusicSM()
 {
@@ -402,6 +422,43 @@ void MusicSM()
 	TransmitPlayer();
 }
 
+
+
+
+
+
+{PACMAN_WAIT, PACMAN_START, PACMAN_PLAY, PACMAN_POWERUP}pacmanState;
+void PacmanSM()
+{
+	switch (pacmanState)
+	{
+	case PACMAN_WAIT:
+	 	if(game_start == 0x01)
+		break;
+	
+	case PACMAN_START:
+		if(reset == 0x01)
+		{
+			pacmanState = PACMAN_WAIT;
+		}
+		else if(game_start == 0x00)
+		{
+			pacmanState = PACMAN_PLAY;
+			//initialize pacman
+			initialize_pacman(&pacman);
+		}
+		break;
+
+	case PACMAN_PLAY:
+		break;
+
+	case PACMAN_POWERUP:
+		break;
+	default:
+		break;
+	}
+}
+
 /*void CombineSM()
 {
 	switch(joystick)
@@ -521,8 +578,18 @@ void GameSM()
 
 		if(game_count > 20)
 		{
-			gameState = GAME_START;
+			gameState = GAME_PLAY;
+			//init game
+			game_send[0] = 0x22;
+
+			game_send[1] = 0x03;
+			for (int i = 0; i < 12; i++)
+			{
+				game_send[i] = 0x00;
+			}
+			game_send[12] = 0x24;
 			game_start = 0x00;
+			game_send_data = 0x01;
 		}
 		break;
 
@@ -560,6 +627,7 @@ void GameSM()
 
 	case GAME_WAIT:
 		reset = 0x00;
+		game_send_data 0x00;
 		pacman_died = 0x00;
 		game_start = 0x00;
 		player_1_data = 0x00;
@@ -601,6 +669,18 @@ void GameSM()
 			game_count = 0x00;
 			score = 0;
 			ate_pellet = 0x00;
+			//draw map
+			game_send[0] = 0x22;
+
+			game_send[1] = 0x02;
+			for (int i = 0; i < 12; i++)
+			{
+				game_send[i] = 0x00;
+			}
+			game_send[12] = 0x24;
+			game_send_data = 0x01;
+			//initialize the map
+			initiate_map();
 		}
 		break;
 	
@@ -627,6 +707,11 @@ int main(void) {
 	musicState_1 = WAIT_1;
 	musicState_2 = WAIT_2;
 	gameState = GAME_WAIT;
+	pacmanState = PACMAN_WAIT;
+	blinkyState = BLINKY_WAIT;
+	clydeState = CLYDE_WAIT;
+	inkyState = INKY_WAIT;
+	pinkyState = PINKY_STATE;
 	TimerOn();
 	TimerSet(100);
 	initUSART0();
