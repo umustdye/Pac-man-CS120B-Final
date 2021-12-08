@@ -296,7 +296,13 @@ void ghost_chase(Character *ghost, Character *pacman)
 
 void ghost_scared(Character *ghost)
 {
-    ghost->max_index = 4;
+    ghost->max_index = 3;
+    ghost->index = 0;
+}
+
+void ghost_regular(Character *ghost)
+{
+    ghost->max_index = 1;
     ghost->index = 0;
 }
 
