@@ -644,7 +644,154 @@ void BlinkySM()
 
 
 
+//BlinkyStates{BLINKY_WAIT, BLINKY_START, BLINKY_CHASE, BLINKY_SCATTER, BLINKY_SCARED, BLINKY_EYES}blinkyState
+void ClydeSM()
+{
+	switch(clydeState)
+	{
+		case CLYDE_WAIT:
+			if(game_start == 0x01)
+			{
+				clydeState = CLYDE_START;
+			}
+			clyde_send_data = 0x00;
+			break;
 
+		case CLYDE_START:
+			initialize_clyde(&clyde);
+			if(reset == 0x01)
+			{
+				clydeState = CLYDE_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				clydeState = CLYDE_CHASE;
+			}
+
+			else if(ghostState == SCATTER)
+			{
+			 	clyde.target_tile_x = 26;
+				clyde.target_tile_y = 1;
+				clydeState = CLYDE_SCATTER;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				clydeState = CLYDE_SCARED;
+			}
+
+			break;
+
+		case CLYDE_CHASE:
+			if(reset == 0x01)
+			{
+				clydeState = CLYDE_WAIT;
+			}
+
+
+			if(ghostState == SCATTER)
+			{
+			 	clyde.target_tile_x = 26;
+				clyde.target_tile_y = 1;
+				clydeState = CLYDE_SCATTER;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				clydeState = CLYDE_SCARED;
+			}
+
+
+			if(clyde_send_data == 0x00)
+			{
+				ghost_chase(&clyde, &pacman);
+				ghost_turn(&clyde);
+				if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&clyde, &pacman);
+				}
+				
+				send_data_ghost(&clyde, clyde_send, 0x40);
+				clyde_send_data = 0x01;				
+			}
+
+
+
+			break;
+
+		case CLYDE_SCATTER:
+			if(reset == 0x01)
+			{
+				clydeState = CLYDE_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				clydeState = CLYDE_CHASE;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				clydeState = CLYDE_SCARED;
+			}
+
+			if(clyde_send_data = 0x00)
+			{
+				ghost_turn(&clyde);
+				if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&clyde, &pacman);
+				}
+				
+				send_data_ghost(&clyde, clyde_send, 0x40);
+				clyde_send_data = 0x01;
+
+			}
+
+
+			break;
+
+		case CLYDE_SCARED:
+			if(reset == 0x01)
+			{
+				clydeState = CLYDE_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				clydeState = CLYDE_CHASE;
+			}
+
+			else if(ghostState == SCATTER)
+			{
+			 	clyde.target_tile_x = 26;
+				clyde.target_tile_y = 1;
+				clydeState = CLYDE_SCATTER;
+			}
+			if(clyde_send_data = 0x00)
+			{
+				ghost_scared(&clyde)
+				ghost_turn(&clyde);
+				//ghost dies here
+				/*if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&blinky, &pacman);
+				}*/
+				
+				send_data_ghost(&clyde, clyde_send, 0x70);
+				clyde_send_data = 0x01;
+			}
+
+			break;
+		
+		case BLINKY_EYES:
+			break;
+
+		default:
+			break;
+	}
+}
 
 
 
