@@ -19,49 +19,337 @@
 #include "simAVRHeader.h"
 #endif
 
-enum MusicStates{STARTUP, WAKAWAKA, FRUIT, GHOST_SIREN_1, GHOST_SIREN_2, SPECIAL_ABILITY, EAT_GHOST, GHOST_AFTER_EATEN, HIGH_SCORE, CUTSCENE_CHASE, DIES, WAKAWAKA_SHORT, WAIT}musicState;
+enum MusicStates_1{STARTUP_1, WAKAWAKA, FRUIT, SPECIAL_ABILITY, EAT_GHOST, HIGH_SCORE, CUTSCENE_CHASE, DIES, WAKAWAKA_SHORT, WAIT_1, RESET_1}musicState_1;
+enum MusicStates_2{GHOST_SIREN_1, GHOST_SIREN_2, GHOST_AFTER_EATEN, WAIT_2, RESET_2}musicState_2;
 enum JoystickStates{RIGHT, LEFT, UP, DOWN, IDLE}joystickState;
 char joystick;
-unsigned char send[4];
+unsigned char player_1_send[4];
+unsigned char player_1_data;
+unsigned char player_2_send[4];
+unsigned char player_2_data;
+unsigned char ate_pellet;
+unsigned char reset;
+unsigned char game_start;
+unsigned char pacman_died;
 
 
 void MusicSM()
 {
-	switch(musicState)
+	switch(musicState_1)
 	{
-		case STARTUP:
-			send[0] = 0x22;
-			send[1] = 0x01;
-			send[2] = 0x01;
-			send[3] = 0x24;
-			musicState = STARTUP;
+		case STARTUP_1:
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x01;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
+			
 			break;
 
 		case WAKAWAKA:
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x02;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
 			break;
-	       	case FRUIT:
-		      	break; 
-		case GHOST_SIREN_1:
-		     	break;
-		case GHOST_SIREN_2:
-		       	break;	
+		case FRUIT:
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x03;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
+			break;	
 		case SPECIAL_ABILITY:
-		      	break; 
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x06;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
+			break; 
 		case EAT_GHOST:
-		     	break; 
-		case GHOST_AFTER_EATEN:
-		    	break; 
-		case HIGH_SCORE: 
-		    	break;
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x07;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
+			break; 
+		case HIGH_SCORE:
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x09;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
+			break;
 		case CUTSCENE_CHASE: 
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x0A;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
 			break;
 		case DIES:
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x0B;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
 			break;
 
 		case WAKAWAKA_SHORT:
+			if(player_1_data == 0x00)
+			{
+				player_1_send[0] = 0x22;
+				player_1_send[1] = 0x01;
+				player_1_send[2] = 0x0C;
+				player_1_send[3] = 0x24;	
+			}
+
+			player_1_data = 0x01;
+			if(reset)
+			{
+				musicState_1 = RESET_1;
+			}
+			else
+			{
+				musicState_1 = WAIT_1;
+			}
 			break;
 
-		case WAIT:
+		case WAIT_1:
+			player_1_data == 0x00;
+
+
+			//go to the other appropriate states
+			if(reset == 0x01)
+			{
+				musicState_1 = RESET_1;
+			}
+
+			else if(game_start == 0x01)
+			{
+				musicState_1 = STARTUP_1;
+			}
+
+			else if(ate_pellet == 0x01)
+			{
+				musicState_1 = WAKAWAKA_SHORT;
+			}
+
+			else if(pacman_died == 0x01)
+			{
+				musicState_1 = DIES;
+			}
+			break;
+
+		case RESET_1:
+			player_1_send[0] = 0x22;
+			player_1_send[1] = 0x01;
+			player_1_send[2] = 0x23;
+			player_1_send[3] = 0x24;
+
+			musicState_1 = WAIT_1;
+			break;
+		default:
+			break;
+	}
+
+
+
+
+
+
+	switch(musicState_2)
+	{
+
+		case GHOST_SIREN_1:
+			if(player_2_data == 0x00)
+			{
+				player_2_send[0] = 0x22;
+				player_2_send[1] = 0x01;
+				player_2_send[2] = 0x04;
+				player_2_send[3] = 0x24;	
+			}
+
+			player_2_data = 0x01;
+			if(reset)
+			{
+				musicState_2 = RESET_2;
+			}
+			else
+			{
+				musicState_2 = WAIT_2;
+			}
+			break;
+		case GHOST_SIREN_2:
+			if(player_2_data == 0x00)
+			{
+				player_2_send[0] = 0x22;
+				player_2_send[1] = 0x01;
+				player_2_send[2] = 0x05;
+				player_2_send[3] = 0x24;	
+			}
+
+			player_2_data = 0x01;
+			if(reset)
+			{
+				musicState_2 = RESET_2;
+			}
+			else
+			{
+				musicState_2 = WAIT_2;
+			}
+			break;	
+		case GHOST_AFTER_EATEN:
+			if(player_2_data == 0x00)
+			{
+				player_2_send[0] = 0x22;
+				player_2_send[1] = 0x01;
+				player_2_send[2] = 0x08;
+				player_2_send[3] = 0x24;	
+			}
+
+			player_2_data = 0x01;
+			if(reset)
+			{
+				musicState_2 = RESET_2;
+			}
+			else
+			{
+				musicState_2 = WAIT_2;
+			}
+			break; 
+
+		case WAIT_2:
+			player_2_data == 0x00;
+
+
+			//go to the other appropriate states
+			if(reset == 0x01)
+			{
+				musicState_2 = RESET_2;
+			}
+
+			else if(ghostState == CHASE || ghostState == SCATTER)
+			{
+				musicState_2 = GHOST_SIREN_1;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				musicState_2 = GHOST_SIREN_2;
+			}
+
+			//eye mode
+			else if(ghostState == EYES)
+			{
+				musicState_2 = GHOST_AFTER_EATEN;
+			}
+			break;
+
+		case RESET_2:
+			player_2_send[0] = 0x22;
+			player_2_send[1] = 0x02;
+			player_2_send[2] = 0x23;
+			player_2_send[3] = 0x24;
+
+			musicState_2 = WAIT_2;
 			break;
 		default:
 			break;
@@ -191,7 +479,7 @@ int main(void) {
 	joystickState = IDLE;
 	musicState = STARTUP;
 	TimerOn();
-	TimerSet(500);
+	TimerSet(100);
 	initUSART();
 	//clock_prescale_set(clock_div_1);
 
