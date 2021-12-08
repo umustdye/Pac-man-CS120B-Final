@@ -550,8 +550,9 @@ void BlinkySM()
 			}
 
 
-			if(blinky_send_data)
+			if(blinky_send_data == 0x00)
 			{
+				ghost_regular(&blinky);
 				ghost_chase(&blinky, &pacman);
 				ghost_turn(&blinky);
 				if(pacman_died == 0x00)
@@ -583,9 +584,10 @@ void BlinkySM()
 				blinkyState = BLINKY_SCARED;
 			}
 
-			if(blinky_send_data = 0x00)
+			if(blinky_send_data == 0x00)
 			{
 				ghost_turn(&blinky);
+				ghost_regular(&blinky);
 				if(pacman_died == 0x00)
 				{
 					pacman_died = caught_pacman(&blinky, &pacman);
@@ -616,9 +618,9 @@ void BlinkySM()
 				blinky.target_tile_y = 1;
 				blinkyState = BLINKY_SCATTER;
 			}
-			if(blinky_send_data = 0x00)
+			if(blinky_send_data == 0x00)
 			{
-				ghost_scared(Character *ghost)
+				ghost_scared(&blinky)
 				ghost_turn(&blinky);
 				//ghost dies here
 				/*if(pacman_died == 0x00)
@@ -671,8 +673,8 @@ void ClydeSM()
 
 			else if(ghostState == SCATTER)
 			{
-			 	clyde.target_tile_x = 26;
-				clyde.target_tile_y = 1;
+			 	clyde.target_tile_x = 1;
+				clyde.target_tile_y = 29;
 				clydeState = CLYDE_SCATTER;
 			}
 
@@ -692,8 +694,8 @@ void ClydeSM()
 
 			if(ghostState == SCATTER)
 			{
-			 	clyde.target_tile_x = 26;
-				clyde.target_tile_y = 1;
+			 	clyde.target_tile_x = 1;
+				clyde.target_tile_y = 29;
 				clydeState = CLYDE_SCATTER;
 			}
 
@@ -705,6 +707,7 @@ void ClydeSM()
 
 			if(clyde_send_data == 0x00)
 			{
+				ghost_regular(&clyde);
 				ghost_chase(&clyde, &pacman);
 				ghost_turn(&clyde);
 				if(pacman_died == 0x00)
@@ -736,8 +739,9 @@ void ClydeSM()
 				clydeState = CLYDE_SCARED;
 			}
 
-			if(clyde_send_data = 0x00)
+			if(clyde_send_data == 0x00)
 			{
+				ghost_regular(&clyde);
 				ghost_turn(&clyde);
 				if(pacman_died == 0x00)
 				{
@@ -765,13 +769,13 @@ void ClydeSM()
 
 			else if(ghostState == SCATTER)
 			{
-			 	clyde.target_tile_x = 26;
-				clyde.target_tile_y = 1;
+			 	clyde.target_tile_x = 1;
+				clyde.target_tile_y = 29;
 				clydeState = CLYDE_SCATTER;
 			}
-			if(clyde_send_data = 0x00)
+			if(clyde_send_data == 0x00)
 			{
-				ghost_scared(&clyde)
+				ghost_scared(&clyde);
 				ghost_turn(&clyde);
 				//ghost dies here
 				/*if(pacman_died == 0x00)
@@ -785,7 +789,311 @@ void ClydeSM()
 
 			break;
 		
-		case BLINKY_EYES:
+		case CLYDE_EYES:
+			break;
+
+		default:
+			break;
+	}
+}
+
+//BlinkyStates{BLINKY_WAIT, BLINKY_START, BLINKY_CHASE, BLINKY_SCATTER, BLINKY_SCARED, BLINKY_EYES}blinkyState
+void InkySM()
+{
+	switch(inkyState)
+	{
+		case INKY_WAIT:
+			if(game_start == 0x01)
+			{
+				inkyState = INKY_START;
+			}
+			inky_send_data = 0x00;
+			break;
+
+		case INKY_START:
+			initialize_inky(&inky);
+			if(reset == 0x01)
+			{
+				inkyState = INKY_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				inkyState = INKY_CHASE;
+			}
+
+			else if(ghostState == SCATTER)
+			{
+			 	inky.target_tile_x = 26;
+				inky.target_tile_y = 29;
+				inkyState = INKY_SCATTER;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				inkyState = INKY_SCARED;
+			}
+
+			break;
+
+		case INKY_CHASE:
+			if(reset == 0x01)
+			{
+				inkyState = INKY_WAIT;
+			}
+
+
+			if(ghostState == SCATTER)
+			{
+			 	inky.target_tile_x = 26;
+				inky.target_tile_y = 29;
+				inkyState = INKY_SCATTER;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				inkyState = INKY_SCARED;
+			}
+
+
+			if(inky_send_data == 0x00)
+			{
+				ghost_regular(&inky);
+				ghost_chase(&inky, &pacman);
+				ghost_turn(&inky);
+				if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&inky, &pacman);
+				}
+				
+				send_data_ghost(&inky, inky_send, 0x50);
+				inky_send_data = 0x01;				
+			}
+
+
+
+			break;
+
+		case INKY_SCATTER:
+			if(reset == 0x01)
+			{
+				inkyState = INKY_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				inkyState = INKY_CHASE;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				inkyState = INKY_SCARED;
+			}
+
+			if(inky_send_data == 0x00)
+			{
+				ghost_regular(&inky);
+				ghost_turn(&inky);
+				if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&inky, &pacman);
+				}
+				
+				send_data_ghost(&inky, inky_send, 0x50);
+				inky_send_data = 0x01;
+
+			}
+
+
+			break;
+
+		case INKY_SCARED:
+			if(reset == 0x01)
+			{
+				inkyState = INKY_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				inkyState = INKY_CHASE;
+			}
+
+			else if(ghostState == SCATTER)
+			{
+			 	inky.target_tile_x = 26;
+				inky.target_tile_y = 29;
+				inkyState = INKY_SCATTER;
+			}
+			if(inky_send_data == 0x00)
+			{
+				ghost_scared(&inky);
+				ghost_turn(&inky);
+				//ghost dies here
+				/*if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&blinky, &pacman);
+				}*/
+				
+				send_data_ghost(&inky, inky_send, 0x70);
+				inky_send_data = 0x01;
+			}
+
+			break;
+		
+		case INKY_EYES:
+			break;
+
+		default:
+			break;
+	}
+}
+
+
+
+//BlinkyStates{BLINKY_WAIT, BLINKY_START, BLINKY_CHASE, BLINKY_SCATTER, BLINKY_SCARED, BLINKY_EYES}blinkyState
+void PinkySM()
+{
+	switch(pinkyState)
+	{
+		case PINKY_WAIT:
+			if(game_start == 0x01)
+			{
+				pinkyState = PINKY_START;
+			}
+			pinky_send_data = 0x00;
+			break;
+
+		case PINKY_START:
+			initialize_pinky(&pinky);
+			if(reset == 0x01)
+			{
+				pinkyState = PINKY_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				pinkyState = PINKY_CHASE;
+			}
+
+			else if(ghostState == SCATTER)
+			{
+			 	pinky.target_tile_x = 1;
+				pinky.target_tile_y = 1;
+				pinkyState = PINKY_SCATTER;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				pinkyState = PINKY_SCARED;
+			}
+
+			break;
+
+		case PINKY_CHASE:
+			if(reset == 0x01)
+			{
+				pinkyState = PINKY_WAIT;
+			}
+
+
+			if(ghostState == SCATTER)
+			{
+			 	pinky.target_tile_x = 1;
+				pinky.target_tile_y = 1;
+				pinkyState = PINKY_SCATTER;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				pinkyState = PINKY_SCARED;
+			}
+
+
+			if(pinky_send_data == 0x00)
+			{
+				ghost_regular(&pinky);
+				ghost_chase(&pinky, &pacman);
+				ghost_turn(&pinky);
+				if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&pinky, &pacman);
+				}
+				
+				send_data_ghost(&pinky, pinky_send, 0x60);
+				pinky_send_data = 0x01;				
+			}
+
+
+
+			break;
+
+		case PINKY_SCATTER:
+			if(reset == 0x01)
+			{
+				pinkyState = PINKY_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				pinkyState = PINKY_CHASE;
+			}
+
+			else if(ghostState == SCARED)
+			{
+				pinkyState = PINKY_SCARED;
+			}
+
+			if(pinky_send_data == 0x00)
+			{
+				ghost_regular(&pinky);
+				ghost_turn(&pinky);
+				if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&pinky, &pacman);
+				}
+				
+				send_data_ghost(&pinky, pinky_send, 0x60);
+				pinky_send_data = 0x01;
+
+			}
+
+
+			break;
+
+		case PINKY_SCARED:
+			if(reset == 0x01)
+			{
+				pinkyState = PINKY_WAIT;
+			}
+
+			if(ghostState == CHASE)
+			{
+				pinkyState = PINKY_CHASE;
+			}
+
+			else if(ghostState == SCATTER)
+			{
+			 	pinky.target_tile_x = 1;
+				pinky.target_tile_y = 1;
+				pinkyState = PINKY_SCATTER;
+			}
+			if(pinky_send_data == 0x00)
+			{
+				ghost_scared(&pinky);
+				ghost_turn(&pinky);
+				//ghost dies here
+				/*if(pacman_died == 0x00)
+				{
+					pacman_died = caught_pacman(&blinky, &pacman);
+				}*/
+				
+				send_data_ghost(&pinky, pinky_send, 0x70);
+				pinky_send_data = 0x01;
+			}
+
+			break;
+		
+		case PINKY_EYES:
 			break;
 
 		default:
@@ -798,37 +1106,7 @@ void ClydeSM()
 
 
 
-/*void CombineSM()
-{
-	switch(joystick)
-	{
-		case 'I':
-			PORTB = 0x00;
-			break;
 
-		case 'L':
-			PORTB = 0x08;
-			break;
-
-		case 'R': 
-			PORTB = 0x02;
-			break;
-
-		case 'U':
-			PORTB = 0x01;
-			break;
-
-		case 'D':
-			PORTB = 0x04;
-			break;
-
-		default:
-			PORTB = 0x00;
-			break;
-	}
-
-
-}*/
 
 
 void JoystickSM()
