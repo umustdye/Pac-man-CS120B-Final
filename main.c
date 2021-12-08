@@ -27,7 +27,7 @@
 enum MusicStates_1{STARTUP_1, WAKAWAKA, FRUIT, SPECIAL_ABILITY, EAT_GHOST, HIGH_SCORE, CUTSCENE_CHASE, DIES, WAKAWAKA_SHORT, WAIT_1, RESET_1}musicState_1;
 enum MusicStates_2{GHOST_SIREN_1, GHOST_SIREN_2, GHOST_AFTER_EATEN, WAIT_2, RESET_2}musicState_2;
 enum GameStates{GAME_START, GAME_PLAY, GAME_LOST, GAME_RESTART, GAME_WAIT, GAME_RESTART_RELEASE, GAME_START_RELEASE}gameState;
-enum PacmanStates{PACMAN_WAIT, PACMAN_START, PACMAN_PLAY, PACMAN_POWERUP}pacmanState;
+enum PacmanStates{PACMAN_DIE, PACMAN_WAIT, PACMAN_START, PACMAN_PLAY, PACMAN_POWERUP}pacmanState;
 enum BlinkyStates{BLINKY_WAIT, BLINKY_START, BLINKY_CHASE, BLINKY_SCATTER, BLINKY_SCARED, BLINKY_EYES}blinkyState;
 enum ClydeStates{CLYDE_WAIT, CLYDE_START, CLYDE_CHASE, CLYDE_SCATTER, CLYDE_SCARED, CLYDE_EYES}clydeState;
 enum InkyStates{INKY_WAIT, INKY_START, INKY_CHASE, INKY_SCATTER, INKY_SCARED, INKY_EYES}inkyState;
@@ -88,11 +88,121 @@ void TransmitPlayer()
 		//transmit player 2 data
 		for(int i=0; i<4; i++)
 		{
-			USART_Send(player_2_send[i]);
+			USART_Send0(player_2_send[i]);
 		}
 		player_2_data == 0x00;
 	}
 }
+
+
+
+
+void TransmitGraphics()
+{
+	if(game_send_data == 0x01)
+	{
+		//transmit player 1 data
+		for(int i=0; i<13; i++)
+		{
+			USART_Send1(game_send[i]);
+		}
+		game_send_data == 0x00;
+	}
+
+	//give some time between the next transmit
+	for(int i=0; i<50; i++)
+	{
+		//just here for spacing
+	}
+	if(pacman_send_data == 0x01)
+	{
+		//transmit player 1 data
+		for(int i=0; i<13; i++)
+		{
+			USART_Send1(pacman_send[i]);
+		}
+		pacman_send_data == 0x00;
+	}
+
+	//give some time between the next transmit
+	for(int i=0; i<50; i++)
+	{
+		//just here for spacing
+	}
+	if(blinky_send_data == 0x01)
+	{
+		//transmit player 1 data
+		for(int i=0; i<13; i++)
+		{
+			USART_Send1(blinky_send[i]);
+		}
+		blinky_send_data == 0x00;
+	}
+
+		//give some time between the next transmit
+	for(int i=0; i<50; i++)
+	{
+		//just here for spacing
+	}
+	if(clyde_send_data == 0x01)
+	{
+		//transmit player 1 data
+		for(int i=0; i<13; i++)
+		{
+			USART_Send1(clyde_send[i]);
+		}
+		clyde_send_data == 0x00;
+	}
+
+	//give some time between the next transmit
+	for(int i=0; i<50; i++)
+	{
+		//just here for spacing
+	}
+	if(inky_send_data == 0x01)
+	{
+		//transmit player 1 data
+		for(int i=0; i<13; i++)
+		{
+			USART_Send1(inky_send[i]);
+		}
+		inky_send_data == 0x00;
+	}
+
+	//give some time between the next transmit
+	for(int i=0; i<50; i++)
+	{
+		//just here for spacing
+	}
+	if(pinky_send_data == 0x01)
+	{
+		//transmit player 1 data
+		for(int i=0; i<13; i++)
+		{
+			USART_Send1(pinky_send[i]);
+		}
+		pinky_send_data == 0x00;
+	}
+
+		//give some time between the next transmit
+	for(int i=0; i<50; i++)
+	{
+		//just here for spacing
+	}
+	if(ate_pellet != 0)
+	{
+		//transmit player 1 data
+		USART_Send1(0x22);
+		USART_Send1(0x05);
+		USART_Send1((unsigned char)(pacman.back_tile_x));
+		USART_Send1((unsigned char)(pacman.back_tile_y));
+		USART_Send1(0x24)
+
+	}
+
+}
+
+
 
 
 
@@ -485,6 +595,15 @@ void PacmanSM()
 		break;
 
 	case PACMAN_POWERUP:
+		break;
+
+	case PACMAN_DIE:
+		if(pacman_died == 0x01)
+		{
+			pacman_died(&pacman, pacman_send);
+			pacman_died = 0x00;
+
+		}
 		break;
 	default:
 		break;
@@ -1221,6 +1340,7 @@ void GameSM()
 		else
 		{
 			check_highscore(score);
+			highscore = get_highscore();
 			if(pacman_died)
 			{
 				pacman_lives--;
@@ -1245,7 +1365,7 @@ void GameSM()
 				game_count = 0;
 			}
 			
-			
+			TransmitGraphics()
 		}
 		break;
 

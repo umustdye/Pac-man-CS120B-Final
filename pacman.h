@@ -29,7 +29,7 @@ void initialize_pacman(Character *pacman)
 	unsigned char direct = 'R'; //can be 'U', 'R', 'D', 'L', or 'I'
     unsigned char prev_direct = 'R';
 	int index = 0; //index for animation frame
-	int max_index = 4; //how many frames in animation cycle
+	int max_index = 3; //how many frames in animation cycle
 	//previous location for graphics
 	int prev_boarder_x[4];
     prev_boarder_x[0] = back_tile_x * 8;
@@ -107,12 +107,19 @@ unsigned char pacman_turn(Character *pacman, unsigned char direct)
     }
 }
 
-void pacman_died(Character *pacman)
+void pacman_died(Character *pacman, unsigned char *sendData)
 {
+
     pacman->max_index = 12;
     pacman->index = 0;
+    prepare_send_data(pacman, sendData);
+    sendData[1] = (unsigned char)(0x0C);
 }
 
-
+void pacman_vibing(Character *pacman)
+{
+    pacman->max_index = 3;
+    pacman->index = 0;
+}
 
 #endif //PACMAN_H
